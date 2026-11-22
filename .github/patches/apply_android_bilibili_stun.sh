@@ -40,7 +40,6 @@ replacement = (
 )
 patched = source[: match.start()] + replacement + source[match.end() :]
 
-# Fail closed if the generated list is not in the intended order.
 updated = list(pattern.finditer(patched))
 if len(updated) != 1:
     raise SystemExit("Patched source no longer contains exactly one STUN defaults array.")
