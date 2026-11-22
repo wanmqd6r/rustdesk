@@ -1,7 +1,13 @@
-name: Flutter Tag Build
+name: Android ARM64 Tag Build
 
 on:
   workflow_dispatch:
+    inputs:
+      upload-tag:
+        description: Release tag to build and publish
+        required: true
+        type: string
+        default: "1.5.3-1"
   push:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
@@ -9,11 +15,13 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+-[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+-[0-9]+'
 
+permissions:
+  contents: write
+
 jobs:
-  run-flutter-tag-build:
-    uses: ./.github/workflows/flutter-build.yml
+  build-android-arm64:
+    uses: ./.github/workflows/android-arm64-build.yml
     secrets: inherit
     with:
       upload-artifact: true
-      upload-tag: ${{ github.ref_name }}
-      publish-update-metadata: ${{ github.repository == 'rustdesk/rustdesk' }}
+      upload-tag: ${{ inputs.upload-tag || github.ref_name }}
