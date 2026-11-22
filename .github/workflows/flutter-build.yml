@@ -1512,6 +1512,10 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Prefer Bilibili IPv6 STUN with IPv4 fallback
+        shell: bash
+        run: bash .github/patches/apply_android_bilibili_stun.sh
+
       - name: Check JNI natives are in ffi.FFI
         # Custom clients rename com.carriez.flutter_hbb; only ffi.FFI keeps its name.
         shell: bash
