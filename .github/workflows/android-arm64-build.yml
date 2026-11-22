@@ -127,6 +127,34 @@ jobs:
           channel: "stable"
           flutter-version: ${{ env.ANDROID_FLUTTER_VERSION }}
 
+      - name: Fix Flutter Gradle plugin repositories
+        shell: bash
+        run: |
+          FLUTTER_ROOT="$(cd "$(dirname "$(command -v flutter)")/.." && pwd)"
+          GRADLE_PLUGIN_BUILD="$FLUTTER_ROOT/packages/flutter_tools/gradle/build.gradle.kts"
+          python3 - "$GRADLE_PLUGIN_BUILD" <<'PY'
+          from pathlib import Path
+          import re
+          import sys
+
+          path = Path(sys.argv[1])
+          source = path.read_text(encoding="utf-8")
+          blocks = re.findall(r"(?ms)^repositories\\s*\\{(.*?)^\\}", source)
+          if blocks:
+              block = blocks[0]
+              if "google()" not in block or "mavenCentral()" not in block:
+                  raise SystemExit("Flutter Gradle plugin has a repositories block without google() and mavenCentral(); refusing to guess.")
+              print("Flutter Gradle plugin repositories already configured.")
+          else:
+              marker = 'version = "1.0.0"\\n'
+              if source.count(marker) != 1:
+                  raise SystemExit("Could not find the expected Flutter Gradle plugin version marker; upstream file changed.")
+              addition = marker + "\\nrepositories {\\n    google()\\n    mavenCentral()\\n}\\n"
+              path.write_text(source.replace(marker, addition, 1), encoding="utf-8")
+              print("Added google() and mavenCentral() to Flutter's included Gradle plugin build.")
+          PY
+          grep -n -A 4 '^repositories' "$GRADLE_PLUGIN_BUILD"
+
       - name: Patch flutter
         run: |
           cd $(dirname $(dirname $(which flutter)))
