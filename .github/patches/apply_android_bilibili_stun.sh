@@ -8,7 +8,7 @@ import re
 path = Path("libs/hbb_common/src/webrtc.rs")
 source = path.read_text(encoding="utf-8")
 pattern = re.compile(
-    r"(static DEFAULT_ICE_SERVERS: \\[&str; )\\d+(\\] = \\[\\n)(.*?)(\\n\\];)",
+    r"(static DEFAULT_ICE_SERVERS: \[&str; )\d+(\] = \[\n)(.*?)(\n\];)",
     re.DOTALL,
 )
 matches = list(pattern.finditer(source))
@@ -35,7 +35,7 @@ replacement = (
     match.group(1)
     + str(len(servers))
     + match.group(2)
-    + "\\n".join(f'    "{url}",' for url in servers)
+    + "\n".join(f'    "{url}",' for url in servers)
     + match.group(4)
 )
 patched = source[: match.start()] + replacement + source[match.end() :]
