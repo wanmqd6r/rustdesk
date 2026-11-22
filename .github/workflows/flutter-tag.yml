@@ -9,6 +9,8 @@ on:
         type: string
         default: "1.5.3-1"
   push:
+    branches:
+      - custom-ipv6-stun
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+'
